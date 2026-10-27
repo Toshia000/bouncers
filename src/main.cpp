@@ -37,11 +37,6 @@ public:
 
     void update()
     {
-        // for each bouncer
-        // for(int i = 0; i < sprites.size(); i++) {
-        // }
-        // bn::sprite_ptr sprite = sprites[i];
-
         bn::fixed x = sprite.x();
 
         // Update x position by adding speed
@@ -101,11 +96,6 @@ void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS> &bouncers, bn::fixed start_x,
 int main()
 {
     bn::core::init();
-
-    // Sprites and x speeds of bouncers
-    // Items with the same index correspond to each other
-    // bn::vector<bn::sprite_ptr, MAX_BOUNCERS> sprites = {};
-    // bn::vector<bn::fixed, MAX_BOUNCERS> x_speeds = {};
 
     bn::vector<Bouncer, MAX_BOUNCERS> bouncers = {};
 
