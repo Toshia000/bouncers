@@ -20,9 +20,12 @@ static constexpr bn::fixed MAX_Y = HALF_SCREEN_HEIGHT;
 
 // Minimum speed of a bouncer
 static constexpr bn::fixed MIN_SPEED = 1;
+
 // Maximum speed of a bouncer
 static constexpr bn::fixed MAX_SPEED = 3;
 
+// Number of seconds bouncer will exist before dissapearing
+static constexpr bn::fixed TIME_TO_LIVE = 10;
 
 // Maximum number of bouncers on screen at once
 static constexpr int MAX_BOUNCERS = 20;
@@ -33,12 +36,14 @@ public:
     bn::sprite_ptr sprite;
     bn::fixed x_speed;
     bn::fixed y_speed;
+    bn::fixed frames_to_live;
     bn::random rnd;
 
-    Bouncer(bn::fixed x_start, bn::fixed y_start) :
+    Bouncer(bn::fixed x_start, bn::fixed y_start, bn::fixed time_to_live) :
         sprite(bn::sprite_items::smile_face_8x8.create_sprite(x_start, y_start)),
         x_speed(rnd.get_fixed(MIN_SPEED, MAX_SPEED)),
-        y_speed(rnd.get_fixed(MIN_SPEED, MAX_SPEED)) {
+        y_speed(rnd.get_fixed(MIN_SPEED, MAX_SPEED)),
+        frames_to_live(time_to_live * 60) {
     }
 
     void update()
@@ -81,6 +86,8 @@ public:
 
         sprite.set_x(x);
         sprite.set_y(y);
+
+        frames_to_live -= 1;
     }
 
 private:
@@ -107,12 +114,12 @@ bn::fixed average_x(bn::vector<Bouncer, MAX_BOUNCERS> &bouncers)
     return x_average;
 }
 
-void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS> &bouncers, bn::fixed start_x, bn::fixed start_y)
+void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS> &bouncers, bn::fixed start_x, bn::fixed start_y, bn::fixed time_to_live = TIME_TO_LIVE)
 {
     // Only add if we're below the maximum
     if (bouncers.size() < bouncers.max_size())
     {
-        bouncers.push_back(Bouncer(start_x, start_y));
+        bouncers.push_back(Bouncer(start_x, start_y, time_to_live));
     }
 }
 
@@ -129,7 +136,7 @@ int main()
         // if A is pressed add a new bouncer
         if (bn::keypad::a_pressed())
         {
-            add_bouncer(bouncers, 0, y_spawn);
+            add_bouncer(bouncers, 0, y_spawn, TIME_TO_LIVE);
         }
 
         // if B is pressed print the average to the console
@@ -141,6 +148,10 @@ int main()
         for (Bouncer &b : bouncers)
         {
             b.update();
+
+            if (b.frames_to_live == 0) {
+                bouncers.erase(&b);
+            }
         }
 
         y_spawn += 1;
